@@ -27,7 +27,7 @@ namespace Natanael.Web.Services
         {
             var existingUser = await this._userManager.FindByEmailAsync(email);
 
-            if(existingUser != null)
+            if (existingUser != null)
             {
                 return new AuthenticationResult
                 {
@@ -43,14 +43,43 @@ namespace Natanael.Web.Services
 
             var createdUser = await this._userManager.CreateAsync(newUser, password);
 
-            if(!createdUser.Succeeded)
+            if (!createdUser.Succeeded)
             {
                 return new AuthenticationResult
                 {
                     Erros = createdUser.Errors.Select(a => a.Description)
                 };
             }
+            return GenerateAuthenticationResultForUser(newUser);
+        }
 
+        public async Task<AuthenticationResult> LoginAsync(string email, string password)
+        {
+            var user = await this._userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return new AuthenticationResult
+                {
+                    Erros = new[] { "User does not exists" }
+                };
+            }
+
+            var userHasValidPassword = await this._userManager.CheckPasswordAsync(user, password);
+
+            if (!userHasValidPassword)
+            {
+                return new AuthenticationResult
+                {
+                    Erros = new[] { "User/password combination is wrong" }
+                };
+            }
+
+            return GenerateAuthenticationResultForUser(user);
+        }
+
+        private AuthenticationResult GenerateAuthenticationResultForUser(IdentityUser newUser)
+        {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -74,5 +103,7 @@ namespace Natanael.Web.Services
                 Token = tokenHandler.WriteToken(token)
             };
         }
+
+
     }
 }

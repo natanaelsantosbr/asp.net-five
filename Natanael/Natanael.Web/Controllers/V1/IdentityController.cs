@@ -22,9 +22,30 @@ namespace Natanael.Web.Controllers.V1
         [HttpPost(ApiRoutes.Identity.Register)]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
+
+
+
             var authResponse = await this._identityService.RegisterAsync(request.Email, request.Password);
 
             if(!authResponse.Sucess)
+            {
+                return BadRequest(new AuthFailedResponse
+                {
+                    Erros = authResponse.Erros
+                });
+            }
+            return Ok(new AuthSuccessResponse
+            {
+                Token = authResponse.Token
+            });
+        }
+
+        [HttpPost(ApiRoutes.Identity.Login)]
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
+        {
+            var authResponse = await this._identityService.LoginAsync(request.Email, request.Password);
+
+            if (!authResponse.Sucess)
             {
                 return BadRequest(new AuthFailedResponse
                 {
