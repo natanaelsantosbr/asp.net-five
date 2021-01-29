@@ -34,5 +34,18 @@ namespace Natanael.Web.Services
         {
             return _posts;
         }
+
+        public bool UpdatePost(Post postToUpdate)
+        {
+            var exists = this.GetPostById(postToUpdate.Id) != null;
+
+            if (!exists)
+                return false;
+
+            var index = _posts.FindIndex(a => a.Id == postToUpdate.Id);
+            _posts[index] = postToUpdate;
+
+            return true;
+        }
     }
 }

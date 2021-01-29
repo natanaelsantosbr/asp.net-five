@@ -21,6 +21,8 @@ namespace Natanael.Web.Contracts.V1
 
             public const string Create = Base + "/posts";
 
+            public const string Update = Base + "/posts/{postId}";
+
 
         }
     }
