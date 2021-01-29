@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Natanael.Web.Contracts.V1;
 using Natanael.Web.Contracts.V1.Requests;
 using Natanael.Web.Contracts.V1.Responses;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Natanael.Web.Controllers.V1
 {
+    [Authorize]
     public class PostsController : Controller
     {
         private readonly IPostService _postService;

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Natanael.Web.Options;
+using Natanael.Web.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,8 @@ namespace Natanael.Web.Installers
             var jwtSettings = new JwtSettings();
             configuration.Bind(nameof(jwtSettings), jwtSettings);
             services.AddSingleton(jwtSettings);
+
+            services.AddScoped<IIdentityService, IdentityService>();
 
 
             services.AddAuthentication(x =>
