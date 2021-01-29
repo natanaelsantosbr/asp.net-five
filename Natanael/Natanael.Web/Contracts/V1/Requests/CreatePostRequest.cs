@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Natanael.Web.Domain
+namespace Natanael.Web.Contracts.V1.Requests
 {
-    public class Post
+    public class CreatePostRequest
     {
         public string Id { get; set; }
     }
