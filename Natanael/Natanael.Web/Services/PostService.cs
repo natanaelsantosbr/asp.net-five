@@ -1,4 +1,6 @@
-﻿using Natanael.Web.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using Natanael.Web.Data;
+using Natanael.Web.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,58 +9,55 @@ using System.Threading.Tasks;
 namespace Natanael.Web.Services
 {
     public class PostService : IPostService
-    {
-        private List<Post> _posts;
+    { 
 
-        public PostService()
+        private readonly DataContext _dataContext;
+
+        public PostService(DataContext dataContext)
         {
-            _posts = new List<Post>();
-            for (int i = 0; i < 5; i++)
-            {
-                _posts.Add(new Post
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"Post name {i}"
-                });
-            }
+            _dataContext = dataContext;
         }
 
-        public bool DeletePost(Guid postId)
+        public async Task<bool> CreatePostAsync(Post post)
         {
-            var post = this.GetPostById(postId);
+            this._dataContext.Posts.Add(post);
+            var created = await this._dataContext.SaveChangesAsync();
 
-            if (post == null)
-                return false;
-
-            _posts.Remove(post);
-
-            return true;
-
+            return created > 0;
         }
 
-        public Post GetPostById(Guid postId)
+        public async Task<List<Post>> GetPostsAsync()
         {
-            var post = _posts.SingleOrDefault(a => a.Id == postId);
+            return await this._dataContext.Posts.ToListAsync();
+        }
+
+        public async Task<Post> GetPostByIdAsync(Guid postId)
+        {
+            var post = await this._dataContext.Posts.SingleOrDefaultAsync(a => a.Id == postId);
 
             return post;
         }
 
-        public List<Post> GetPosts()
+        public async Task<bool> UpdatePostAsync(Post postToUpdate)
         {
-            return _posts;
+            this._dataContext.Posts.Update(postToUpdate);
+            var updated = await this._dataContext.SaveChangesAsync();
+
+            return updated > 0;
         }
 
-        public bool UpdatePost(Post postToUpdate)
+        public async Task<bool> DeletePostAsync(Guid postId)
         {
-            var exists = this.GetPostById(postToUpdate.Id) != null;
+            var post = await this.GetPostByIdAsync(postId);
 
-            if (!exists)
+            if (post == null)
                 return false;
 
-            var index = _posts.FindIndex(a => a.Id == postToUpdate.Id);
-            _posts[index] = postToUpdate;
+            this._dataContext.Posts.Remove(post);
+            var deleted = await this._dataContext.SaveChangesAsync();
 
-            return true;
+            return deleted > 0;
+
         }
     }
 }

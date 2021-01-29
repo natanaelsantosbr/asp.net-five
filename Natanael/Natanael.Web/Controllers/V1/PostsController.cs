@@ -21,35 +21,57 @@ namespace Natanael.Web.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(_postService.GetPosts());
+            return Ok(await this._postService.GetPostsAsync());
+        }
+
+        [HttpPut(ApiRoutes.Posts.Update)]
+        public async Task<IActionResult> Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
+        {
+            var post = new Post
+            {
+                Id = postId,
+                Name = request.Name
+            };
+
+            var updated = await this._postService.UpdatePostAsync(post);
+
+            if (updated)
+                return Ok(post);
+
+            return NotFound();
+        }
+
+        [HttpDelete(ApiRoutes.Posts.Delete)]
+        public async Task<IActionResult> Delete([FromRoute] Guid postId)
+        {
+            var deleted = await this._postService.DeletePostAsync(postId);
+
+            if (deleted)
+                return NoContent();
+
+            return NotFound();
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
-        public IActionResult Get([FromRoute] Guid postId)
+        public async Task<IActionResult> Get([FromRoute] Guid postId)
         {
-            var post = _postService.GetPostById(postId);
+            var post = await this._postService.GetPostByIdAsync(postId);
 
             if (post == null)
                 return NotFound();
-            
+
             return Ok(post);
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
-        public IActionResult Create([FromBody] CreatePostRequest postRequest)
+        public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
         {
+            var post = new Post { Name = postRequest.Name };
             var id = Guid.Empty;
 
-            if (postRequest == null)
-                id = Guid.NewGuid();
-            else
-                id = postRequest.Id;
-
-            var post = new Post { Id = id };
-
-            _postService.GetPosts().Add(post);
+            await this._postService.CreatePostAsync(post);
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
@@ -59,32 +81,6 @@ namespace Natanael.Web.Controllers.V1
             return Created(locationUri, response);
         }
 
-        [HttpPut(ApiRoutes.Posts.Update)]
-        public IActionResult Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
-        {
-            var post = new Post
-            {
-                Id = postId,
-                Name = request.Name
-            };
 
-            var updated = _postService.UpdatePost(post);
-
-            if (updated)
-                return Ok(post);
-
-            return NotFound();
-        }
-
-        [HttpDelete(ApiRoutes.Posts.Delete)]
-        public IActionResult Delete([FromRoute] Guid postId)
-        {
-            var deleted = _postService.DeletePost(postId);
-
-            if (deleted)
-                return NoContent();
-
-            return NotFound();
-        }
     }
 }
