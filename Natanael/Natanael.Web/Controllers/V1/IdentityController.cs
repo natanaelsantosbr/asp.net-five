@@ -22,7 +22,13 @@ namespace Natanael.Web.Controllers.V1
         [HttpPost(ApiRoutes.Identity.Register)]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
-
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(new AuthFailedResponse
+                {
+                    Erros = ModelState.Values.SelectMany(a => a.Errors.Select(b => b.ErrorMessage))
+                });
+            }
 
 
             var authResponse = await this._identityService.RegisterAsync(request.Email, request.Password);
