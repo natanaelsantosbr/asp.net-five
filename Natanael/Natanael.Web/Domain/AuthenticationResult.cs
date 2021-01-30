@@ -8,10 +8,10 @@ namespace Natanael.Web.Domain
     public class AuthenticationResult
     {
         public string Token { get; set; }
+        public string RefreshToken { get; set; }
 
         public bool Sucess { get; set; }
 
         public IEnumerable<string> Erros { get; set; }
-
     }
 }
