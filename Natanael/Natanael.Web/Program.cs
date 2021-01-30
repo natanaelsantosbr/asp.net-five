@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Natanael.Web.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,9 +15,20 @@ namespace Natanael.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            var host = CreateWebHostBuilder(args).Build();
+
+            using(var serviceScope = host.Services.CreateScope())
+            {
+                var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+
+                await dbContext.Database.MigrateAsync();
+            }
+
+
+            await host.RunAsync();
+
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

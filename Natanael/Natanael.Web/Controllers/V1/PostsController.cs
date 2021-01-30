@@ -4,6 +4,7 @@ using Natanael.Web.Contracts.V1;
 using Natanael.Web.Contracts.V1.Requests;
 using Natanael.Web.Contracts.V1.Responses;
 using Natanael.Web.Domain;
+using Natanael.Web.Extensions;
 using Natanael.Web.Services;
 using System;
 using System.Collections.Generic;
@@ -31,11 +32,14 @@ namespace Natanael.Web.Controllers.V1
         [HttpPut(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
         {
-            var post = new Post
-            {
-                Id = postId,
-                Name = request.Name
-            };
+            var userOwnsPost = await this._postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
+
+            if(!userOwnsPost)
+                return BadRequest(new { error = "You do not own this post" });
+
+            var post = await  this._postService.GetPostByIdAsync(postId);
+            post.Name = request.Name;
+
 
             var updated = await this._postService.UpdatePostAsync(post);
 
@@ -48,6 +52,11 @@ namespace Natanael.Web.Controllers.V1
         [HttpDelete(ApiRoutes.Posts.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid postId)
         {
+            var userOwnsPost = await this._postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
+
+            if (!userOwnsPost)
+                return BadRequest(new { error = "You do not own this post" });
+
             var deleted = await this._postService.DeletePostAsync(postId);
 
             if (deleted)
@@ -70,7 +79,11 @@ namespace Natanael.Web.Controllers.V1
         [HttpPost(ApiRoutes.Posts.Create)]
         public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
         {
-            var post = new Post { Name = postRequest.Name };
+            var post = new Post 
+            { 
+                Name = postRequest.Name,
+                UserId = HttpContext.GetUserId()
+            };
             var id = Guid.Empty;
 
             await this._postService.CreatePostAsync(post);
