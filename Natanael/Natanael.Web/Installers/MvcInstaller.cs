@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Natanael.Web.Options;
 using Natanael.Web.Services;
 using Swashbuckle.AspNetCore.Swagger;
@@ -18,7 +19,11 @@ namespace Natanael.Web.Installers
     {
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(options =>
+            {
+                options.EnableEndpointRouting = false;
+            }
+            ).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             var jwtSettings = new JwtSettings();
             configuration.Bind(nameof(jwtSettings), jwtSettings);
@@ -56,24 +61,30 @@ namespace Natanael.Web.Installers
 
             services.AddSwaggerGen(x =>
             {
-                x.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Natanael API", Version = "v1" });
-
+                // new Swashbuckle.AspNetCore.Swagger.Info { Title = "Natanael API", Version = "v1" });
+                x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Natanael API", Version = "v1" });
                 var security = new Dictionary<string, IEnumerable<string>>
                 {
                     { "Bearer", new string[0] }
                 };
 
-                x.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                x.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme 
                 {
                     Description = "JWT Authorization header using the bearer shcme",
                     Name = "Authorization",
-                    In = "header",
-                    Type = "apiKey"
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
                 });
-                x.AddSecurityRequirement(security);
-
-
-            });
+                x.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    { new OpenApiSecurityScheme{
+                        Reference = new OpenApiReference
+                        {
+                            Id = "Bearer",
+                            Type = ReferenceType.SecurityScheme
+                        }}, new List<string>() }
+                    });
+                });
         }
     }
 }

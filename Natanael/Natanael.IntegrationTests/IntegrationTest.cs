@@ -16,9 +16,10 @@ using System.Threading.Tasks;
 
 namespace Natanael.IntegrationTests
 {
-    public class IntegrationTest
+    public class IntegrationTest : IDisposable
     {
         protected readonly HttpClient _client;
+        private readonly IServiceProvider _serviceProvider;
         public IntegrationTest()
         {
             var appFactory = new WebApplicationFactory<Startup>()
@@ -34,7 +35,16 @@ namespace Natanael.IntegrationTests
                     });
                 });
 
-            _client = appFactory.CreateClient();
+            this._serviceProvider = appFactory.Services;
+            this._client = appFactory.CreateClient();
+
+        }
+
+        public void Dispose()
+        {
+            using var serviceScope = this._serviceProvider.CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<DataContext>();
+            context.Database.EnsureDeleted();
 
         }
 
