@@ -18,5 +18,6 @@ namespace Natanael.Web.Services
 
         Task<bool> DeletePostAsync(Guid postId);
         Task<bool> UserOwnsPostAsync(Guid postId, string userId);
+        Task<Post> GetPostByNameAsync(string name);
     }
 }

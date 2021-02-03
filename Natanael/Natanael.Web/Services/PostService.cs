@@ -72,5 +72,12 @@ namespace Natanael.Web.Services
 
             return true;
         }
+
+        public async Task<Post> GetPostByNameAsync(string name)
+        {
+            var post = await this._dataContext.Posts.SingleOrDefaultAsync(a => a.Name == name);
+
+            return post;
+        }
     }
 }

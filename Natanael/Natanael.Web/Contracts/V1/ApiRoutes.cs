@@ -19,6 +19,8 @@ namespace Natanael.Web.Contracts.V1
 
             public const string Get = Base + "/posts/{postId}";
 
+            public const string GetByName = Base + "/posts/name/{name}";
+
             public const string Create = Base + "/posts";
 
             public const string Update = Base + "/posts/{postId}";
@@ -37,5 +39,5 @@ namespace Natanael.Web.Contracts.V1
         }
 
 
-    }
+        }
 }

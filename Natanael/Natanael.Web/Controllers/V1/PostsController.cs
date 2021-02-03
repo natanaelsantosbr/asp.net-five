@@ -76,6 +76,18 @@ namespace Natanael.Web.Controllers.V1
             return Ok(post);
         }
 
+        [HttpGet(ApiRoutes.Posts.GetByName)]
+        [Authorize(Policy = "TagViewer")]
+        public async Task<IActionResult> Get([FromRoute] string name)
+        {
+            var post = await this._postService.GetPostByNameAsync(name);
+
+            if (post == null)
+                return NotFound();
+
+            return Ok(post);
+        }
+
         [HttpPost(ApiRoutes.Posts.Create)]
         public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
         {

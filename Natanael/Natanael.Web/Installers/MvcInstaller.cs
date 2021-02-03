@@ -56,10 +56,10 @@ namespace Natanael.Web.Installers
                 x.TokenValidationParameters = tokenValidationParameters;
             });
 
-            services.AddAuthorization();
-
-            //Iniciado Autorização por Claims
-            
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TagViewer", builder => builder.RequireClaim("tags.view", "true"));
+            });            
 
             services.AddSwaggerGen(x =>
             {

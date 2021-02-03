@@ -41,13 +41,21 @@ namespace Natanael.Web.Services
                 };
             }
 
+            var newUserId = Guid.NewGuid();
+
             var newUser = new IdentityUser
             {
+                Id = newUserId.ToString(),
                 Email = email,
                 UserName = email
             };
 
+
+
+
             var createdUser = await this._userManager.CreateAsync(newUser, password);
+
+
 
             if (!createdUser.Succeeded)
             {
@@ -56,6 +64,9 @@ namespace Natanael.Web.Services
                     Erros = createdUser.Errors.Select(a => a.Description)
                 };
             }
+
+            await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));
+
             return await GenerateAuthenticationResultForUserAsync(newUser);
         }
 
@@ -197,15 +208,22 @@ namespace Natanael.Web.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
+
+            var claims = new List<Claim>
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim("id", user.Id)
-                }),
+            };
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            claims.AddRange(userClaims);
+
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.Add(this._jwtSettings.TokenLifetime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

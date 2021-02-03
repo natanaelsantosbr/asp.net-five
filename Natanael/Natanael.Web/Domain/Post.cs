@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Natanael.Web.Domain
 {
     public class Post
-    {
+    {        
         [Key]
         public Guid Id { get; set; }
 
