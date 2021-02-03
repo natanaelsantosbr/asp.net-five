@@ -56,14 +56,10 @@ namespace Natanael.Web.Installers
                 x.TokenValidationParameters = tokenValidationParameters;
             });
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("TagViewer", builder => builder.RequireClaim("tags.view", "true"));
-            });            
+            services.AddAuthorization();            
 
             services.AddSwaggerGen(x =>
             {
-                // new Swashbuckle.AspNetCore.Swagger.Info { Title = "Natanael API", Version = "v1" });
                 x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Natanael API", Version = "v1" });
                 var security = new Dictionary<string, IEnumerable<string>>
                 {
@@ -74,8 +70,8 @@ namespace Natanael.Web.Installers
                 {
                     Description = "JWT Authorization header using the bearer shcme",
                     Name = "Authorization",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
                 });
                 x.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
                 {

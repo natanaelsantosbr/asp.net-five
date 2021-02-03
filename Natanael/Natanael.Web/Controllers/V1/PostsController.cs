@@ -77,7 +77,7 @@ namespace Natanael.Web.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.GetByName)]
-        [Authorize(Policy = "TagViewer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Get([FromRoute] string name)
         {
             var post = await this._postService.GetPostByNameAsync(name);

@@ -47,7 +47,7 @@ namespace Natanael.Web.Services
             {
                 Id = newUserId.ToString(),
                 Email = email,
-                UserName = email
+                UserName = email                
             };
 
 
@@ -65,7 +65,10 @@ namespace Natanael.Web.Services
                 };
             }
 
-            await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));
+            await _userManager.AddClaimAsync(newUser, new Claim("role", "Admin"));
+
+            await _userManager.AddToRoleAsync(newUser, "Admin");
+
 
             return await GenerateAuthenticationResultForUserAsync(newUser);
         }
