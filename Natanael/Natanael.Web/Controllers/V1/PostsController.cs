@@ -50,6 +50,7 @@ namespace Natanael.Web.Controllers.V1
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
+        [Authorize(Policy = "MustWorkForChapsas")]
         public async Task<IActionResult> Delete([FromRoute] Guid postId)
         {
             var userOwnsPost = await this._postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
@@ -77,7 +78,7 @@ namespace Natanael.Web.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Posts.GetByName)]
-        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> Get([FromRoute] string name)
         {
             var post = await this._postService.GetPostByNameAsync(name);
