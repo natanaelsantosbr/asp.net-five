@@ -56,7 +56,9 @@ namespace Natanael.Web.Installers
                 x.TokenValidationParameters = tokenValidationParameters;
             });
 
+            services.AddAuthorization();
 
+            //Iniciado Autorização por Claims
             
 
             services.AddSwaggerGen(x =>
