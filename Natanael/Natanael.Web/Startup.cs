@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -32,6 +33,7 @@ namespace Natanael.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.InstallServicesAssembly(Configuration);
+            services.AddAutoMapper(typeof(Startup));
 
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Natanael.Web.Contracts.V1;
 using Natanael.Web.Contracts.V1.Requests;
@@ -17,16 +18,22 @@ namespace Natanael.Web.Controllers.V1
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
+        private readonly IMapper _mapper;
 
-        public PostsController(IPostService postService)
+        public PostsController(IPostService postService, IMapper mapper)
         {
-            _postService = postService;
+            this._postService = postService;
+            this._mapper = mapper;
         }
 
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await this._postService.GetPostsAsync());
+            var posts = await this._postService.GetPostsAsync();
+
+            var postsResponses = _mapper.Map<List<PostResponse>>(posts);
+
+            return Ok(postsResponses);
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
@@ -44,7 +51,7 @@ namespace Natanael.Web.Controllers.V1
             var updated = await this._postService.UpdatePostAsync(post);
 
             if (updated)
-                return Ok(post);
+                return Ok(this._mapper.Map<List<PostResponse>>(post));
 
             return NotFound();
         }
@@ -74,7 +81,7 @@ namespace Natanael.Web.Controllers.V1
             if (post == null)
                 return NotFound();
 
-            return Ok(post);
+            return Ok(this._mapper.Map<List<PostResponse>>(post));
         }
 
         [HttpGet(ApiRoutes.Posts.GetByName)]
@@ -104,9 +111,7 @@ namespace Natanael.Web.Controllers.V1
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
 
-            var response = new PostResponse { Id = post.Id };
-
-            return Created(locationUri, response);
+            return Created(locationUri, this._mapper.Map<List<PostResponse>>(post));
         }
 
 
