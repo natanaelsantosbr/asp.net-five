@@ -99,19 +99,23 @@ namespace Natanael.Web.Controllers.V1
         [HttpPost(ApiRoutes.Posts.Create)]
         public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
         {
+            if(!ModelState.IsValid)
+            {
+
+            }
+
             var post = new Post 
             { 
                 Name = postRequest.Name,
                 UserId = HttpContext.GetUserId()
             };
-            var id = Guid.Empty;
 
             await this._postService.CreatePostAsync(post);
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
 
-            return Created(locationUri, this._mapper.Map<List<PostResponse>>(post));
+            return Created(locationUri, this._mapper.Map<PostResponse>(post));
         }
 
 

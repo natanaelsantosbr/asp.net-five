@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Natanael.Web.Authorization;
+using Natanael.Web.Filters;
 using Natanael.Web.Options;
 using Natanael.Web.Services;
 using Swashbuckle.AspNetCore.Swagger;
@@ -24,8 +26,11 @@ namespace Natanael.Web.Installers
             services.AddMvc(options =>
             {
                 options.EnableEndpointRouting = false;
+                options.Filters.Add<ValidationsFilter>();
             }
-            ).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            )
+                .AddFluentValidation(a => a.RegisterValidatorsFromAssemblyContaining<Startup>())
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             var jwtSettings = new JwtSettings();
             configuration.Bind(nameof(jwtSettings), jwtSettings);
