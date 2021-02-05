@@ -72,33 +72,6 @@ namespace Natanael.Web.Installers
             });
 
             services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
-
-
-            services.AddSwaggerGen(x =>
-            {
-                x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Natanael API", Version = "v1" });
-                var security = new Dictionary<string, IEnumerable<string>>
-                {
-                    { "Bearer", new string[0] }
-                };
-
-                x.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme 
-                {
-                    Description = "JWT Authorization header using the bearer shcme",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey
-                });
-                x.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-                {
-                    { new OpenApiSecurityScheme{
-                        Reference = new OpenApiReference
-                        {
-                            Id = "Bearer",
-                            Type = ReferenceType.SecurityScheme
-                        }}, new List<string>() }
-                    });
-                });
         }
     }
 }

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 namespace Natanael.Web.Controllers.V1
 {
     [Authorize]
+    [Produces("application/json")]
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
@@ -26,6 +27,10 @@ namespace Natanael.Web.Controllers.V1
             this._mapper = mapper;
         }
 
+        /// <summary>
+        /// Retorna todos os posts 
+        /// </summary>
+        /// <response code="200">Retorna todos os posts </response>
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll()
         {
@@ -96,7 +101,22 @@ namespace Natanael.Web.Controllers.V1
             return Ok(post);
         }
 
+        /// <summary>
+        /// Cria um post no sistema
+        /// </summary>
+        /// <remarks>
+        ///     Exemplo de uma  **requisição**:
+        ///     
+        ///         POST /api/v1/posts
+        ///         {
+        ///             "name": "Some name"
+        ///         }
+        /// </remarks>
+        /// <response code="201">Cria um post no sistema</response>
+        /// /// <response code="400">Unable to create the tag due to validation error</response>
         [HttpPost(ApiRoutes.Posts.Create)]
+        [ProducesResponseType(typeof(PostResponse), 201)]
+        [ProducesResponseType(typeof(ErrorResponse), 400)]
         public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
         {
             if(!ModelState.IsValid)
@@ -110,7 +130,24 @@ namespace Natanael.Web.Controllers.V1
                 UserId = HttpContext.GetUserId()
             };
 
-            await this._postService.CreatePostAsync(post);
+            var created = await this._postService.CreatePostAsync(post);
+
+            if(!created)
+            {
+                return BadRequest(
+
+                    new ErrorResponse
+                    {
+                        Erros = new List<ErrorModel>
+                        {
+                            new ErrorModel
+                            {
+                                Message = "Unable to create post"
+                            }
+                        }
+                    });
+            }
+
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
