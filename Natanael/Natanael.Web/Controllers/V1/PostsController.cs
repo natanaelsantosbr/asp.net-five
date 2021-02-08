@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Natanael.Web.Contracts.V1;
-using Natanael.Web.Contracts.V1.Requests;
-using Natanael.Web.Contracts.V1.Responses;
+using Natanael.Contracts.V1;
+using Natanael.Contracts.V1.Requests;
+using Natanael.Contracts.V1.Responses;
 using Natanael.Web.Domain;
 using Natanael.Web.Extensions;
 using Natanael.Web.Services;
@@ -56,13 +56,12 @@ namespace Natanael.Web.Controllers.V1
             var updated = await this._postService.UpdatePostAsync(post);
 
             if (updated)
-                return Ok(this._mapper.Map<List<PostResponse>>(post));
+                return Ok(this._mapper.Map<PostResponse>(post));
 
             return NotFound();
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
-        [Authorize(Policy = "MustWorkForChapsas")]
         public async Task<IActionResult> Delete([FromRoute] Guid postId)
         {
             var userOwnsPost = await this._postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());

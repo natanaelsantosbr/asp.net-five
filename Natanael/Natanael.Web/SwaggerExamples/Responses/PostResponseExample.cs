@@ -1,4 +1,4 @@
-﻿using Natanael.Web.Contracts.V1.Responses;
+﻿using Natanael.Contracts.V1.Responses;
 using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;

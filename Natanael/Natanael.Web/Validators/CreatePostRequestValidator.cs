@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Natanael.Web.Contracts.V1.Requests;
+using Natanael.Contracts.V1.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

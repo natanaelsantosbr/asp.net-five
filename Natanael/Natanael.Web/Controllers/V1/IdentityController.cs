@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Natanael.Web.Contracts.V1;
-using Natanael.Web.Contracts.V1.Requests;
-using Natanael.Web.Contracts.V1.Responses;
+using Natanael.Contracts.V1;
+using Natanael.Contracts.V1.Requests;
+using Natanael.Contracts.V1.Responses;
 using Natanael.Web.Services;
 using System;
 using System.Collections.Generic;

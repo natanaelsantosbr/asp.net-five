@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Natanael.Web.Contracts.V1
+namespace Natanael.Contracts.V1
 {
     public static class ApiRoutes
     {
@@ -39,5 +39,5 @@ namespace Natanael.Web.Contracts.V1
         }
 
 
-        }
+    }
 }

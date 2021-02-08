@@ -1,4 +1,4 @@
-﻿namespace Natanael.Web.Contracts.V1.Responses
+﻿namespace Natanael.Contracts.V1.Responses
 {
     public class ErrorModel
     {
