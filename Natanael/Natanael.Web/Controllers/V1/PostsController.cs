@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Natanael.Contracts.V1;
 using Natanael.Contracts.V1.Requests;
 using Natanael.Contracts.V1.Responses;
+using Natanael.Web.Cache;
 using Natanael.Web.Domain;
 using Natanael.Web.Extensions;
 using Natanael.Web.Services;
@@ -32,6 +33,7 @@ namespace Natanael.Web.Controllers.V1
         /// </summary>
         /// <response code="200">Retorna todos os posts </response>
         [HttpGet(ApiRoutes.Posts.GetAll)]
+        [Cached(600)]
         public async Task<IActionResult> GetAll()
         {
             var posts = await this._postService.GetPostsAsync();
