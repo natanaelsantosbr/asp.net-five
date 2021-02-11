@@ -34,8 +34,12 @@ namespace Natanael.Web.Services
 
         public async Task<string> GetCacheResponseAsync(string cacheKey)
         {
+            
+
             var cacheResponse = await this._distributedCache.GetStringAsync(cacheKey);
             return string.IsNullOrEmpty(cacheResponse) ? null : cacheResponse;
+
+            
         }
     }
 }

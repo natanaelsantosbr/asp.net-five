@@ -1,6 +1,7 @@
 ﻿using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,6 +73,16 @@ namespace Natanael.Web.Installers
             });
 
             services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
+
+            services.AddSingleton<IUriService>(a =>
+            {
+               var acessor = a.GetRequiredService<IHttpContextAccessor>();
+               var request = acessor.HttpContext.Request;
+               var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), "/");
+                return new UriService(absoluteUri);
+            });
+
+
         }
     }
 }

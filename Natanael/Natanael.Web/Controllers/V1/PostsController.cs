@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Natanael.Contracts.V1;
 using Natanael.Contracts.V1.Requests;
+using Natanael.Contracts.V1.Requests.Queries;
 using Natanael.Contracts.V1.Responses;
 using Natanael.Web.Cache;
 using Natanael.Web.Domain;
 using Natanael.Web.Extensions;
+using Natanael.Web.Helpers;
 using Natanael.Web.Services;
 using System;
 using System.Collections.Generic;
@@ -21,11 +23,13 @@ namespace Natanael.Web.Controllers.V1
     {
         private readonly IPostService _postService;
         private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
 
-        public PostsController(IPostService postService, IMapper mapper)
+        public PostsController(IPostService postService, IMapper mapper, IUriService uriService)
         {
             this._postService = postService;
             this._mapper = mapper;
+            this._uriService = uriService;
         }
 
         /// <summary>
@@ -34,13 +38,19 @@ namespace Natanael.Web.Controllers.V1
         /// <response code="200">Retorna todos os posts </response>
         [HttpGet(ApiRoutes.Posts.GetAll)]
         [Cached(600)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PaginationQuery paginationQuery)
         {
-            var posts = await this._postService.GetPostsAsync();
+            var pagination = this._mapper.Map<PaginationFilter>(paginationQuery);
 
-            var postsResponses = _mapper.Map<List<PostResponse>>(posts);
+            var posts = await this._postService.GetPostsAsync(pagination);
+            var postsResponses = this._mapper.Map<List<PostResponse>>(posts);
 
-            return Ok(postsResponses);
+            if (pagination == null || pagination.PageNumber < 1 || pagination.PageSize < 1)
+                return Ok(new PagedResponse<PostResponse>(postsResponses));
+
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(this._uriService, pagination, postsResponses);
+
+            return Ok(paginationResponse);
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
@@ -58,7 +68,7 @@ namespace Natanael.Web.Controllers.V1
             var updated = await this._postService.UpdatePostAsync(post);
 
             if (updated)
-                return Ok(this._mapper.Map<PostResponse>(post));
+                return Ok(new Response<PostResponse>(this._mapper.Map<PostResponse>(post)));
 
             return NotFound();
         }
@@ -87,7 +97,7 @@ namespace Natanael.Web.Controllers.V1
             if (post == null)
                 return NotFound();
 
-            return Ok(this._mapper.Map<List<PostResponse>>(post));
+            return Ok(new Response<PostResponse>(this._mapper.Map<PostResponse>(post)));
         }
 
         [HttpGet(ApiRoutes.Posts.GetByName)]
@@ -149,11 +159,10 @@ namespace Natanael.Web.Controllers.V1
                     });
             }
 
+            var locationUri = this._uriService.GetPostUri(post.Id.ToString());
 
-            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
-            var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
 
-            return Created(locationUri, this._mapper.Map<PostResponse>(post));
+            return Created(locationUri, new Response<PostResponse>(this._mapper.Map<PostResponse>(post)));
         }
 
 

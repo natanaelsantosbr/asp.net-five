@@ -26,9 +26,20 @@ namespace Natanael.Web.Services
             return created > 0;
         }
 
-        public async Task<List<Post>> GetPostsAsync()
+        public async Task<List<Post>> GetPostsAsync(PaginationFilter paginationFilter = null)
         {
-            return await this._dataContext.Posts.ToListAsync();
+            if(paginationFilter == null)
+                return await this._dataContext.Posts.ToListAsync();
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+
+
+            return await this._dataContext.Posts
+                .Skip(skip)
+                .Take(paginationFilter.PageSize)
+                .ToListAsync();
+
+            
         }
 
         public async Task<Post> GetPostByIdAsync(Guid postId)
